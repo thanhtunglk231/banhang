@@ -1,0 +1,319 @@
+﻿@inject IHttpContextAccessor HttpContextAccessor
+@using webBanThucPham.Models
+@{
+    var userEmail = HttpContextAccessor.HttpContext?.Session.GetString("UserEmail");
+    var userName = HttpContextAccessor.HttpContext?.Session.GetString("UserName");
+    var userCustomID = HttpContextAccessor.HttpContext?.Session.GetInt32("CustomerId");
+    int totalCartItems = 0;
+
+    if (userCustomID.HasValue)
+    {
+        using (var db = new DbBanThucPhamContext())
+        {
+            totalCartItems = db.Cartitems
+                .Where(ci => ci.Cart.CustomerId == userCustomID.Value)
+                .Sum(ci => ci.Quantity ?? 0);
+        }
+    }
+}
+<header class="main-header_area position-relative">
+    <div class="header-top border-bottom d-none d-md-block">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-6">
+                    <div class="header-top-left">
+                        <ul class="dropdown-wrap text-matterhorn">
+                            <li>
+                                Liên hệ
+                                <a href="tel://0373089951">0373089951</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="header-top-right text-matterhorn">
+                        <p class="shipping mb-0">Giảm giá cho đơn hàng có giá trị trên<span> 4 triệu đồng</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header-middle py-5">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-12">
+                    <div class="header-middle-wrap">
+                        <a href="index.html" class="header-logo">
+                            <img src="~/assets/images/logo/logo.png" alt="Header Logo">
+                        </a>
+                        <div class="header-search-area d-none d-lg-block">
+                            <form action="#" class="header-searchbox">
+                                <select class="nice-select select-search-category wide">
+                                    <option value="all">Danh mục sản phẩm</option>
+                                </select>
+                                <input class="input-field" type="text" placeholder="Tìm kiếm sản phẩm">
+                                <button class="btn btn-outline-whisper btn-primary-hover" type="submit"><i class="pe-7s-search"></i></button>
+                            </form>
+                        </div>
+                        @{
+                            var fullName = Context.Session.GetString("UserName");
+                            var email = Context.Session.GetString("UserEmail");
+                            var isLoggedIn = !string.IsNullOrEmpty(email);
+                            var shortName = "";
+
+                            if (!string.IsNullOrEmpty(fullName))
+                            {
+                                var parts = fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                                shortName = parts.LastOrDefault();
+                            }
+                        }
+
+                        <div class="header-right">
+                            <ul class="d-flex align-items-center">
+                                <li class="dropdown d-none d-md-block">
+                                    <!-- Đây là nút dropdown: icon + dòng đăng nhập hoặc tên -->
+                                    <button class="btn btn-success btn-sm dropdown-toggle d-flex align-items-center gap-2" type="button" id="settingButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-people-fill fs-5"></i>
+                                        @if (!isLoggedIn)
+                                        {
+                                            <span>Đăng nhập nha!</span>
+                                        }
+                                        else
+                                        {
+                                            <span>Xin chào, @shortName!</span>
+                                        }
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingButton">
+                                        @if (isLoggedIn)
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="CustomAccount" asp-action="EditInfo">
+                                                    <i class="bi bi-person-circle me-2"></i>@fullName
+                                                </a>
+                                                
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="CustomAccount" asp-action="OrderHistory">
+                                                    <i class="fa fa-calendar"></i> Lịch sử mua hàng
+                                                </a>
+
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="CustomAccount" asp-action="Logout">
+                                                    <i class="bi bi-box-arrow-right me-2"></i>Đăng xuất
+                                                </a>
+                                            </li>
+                                        }
+                                        else
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="CustomAccount" asp-action="Login">
+                                                    <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" asp-controller="CustomAccount" asp-action="Register">
+                                                    <i class="bi bi-person-plus me-2"></i>Đăng ký
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </li>
+
+                                <!-- Các nút khác -->
+                                <li class="d-block d-lg-none">
+                                    <a href="#searchBar" class="search-btn toolbar-btn">
+                                        <i class="bi bi-search fs-5"></i>
+                                    </a>
+                                </li>
+
+                                <li class="me-3 me-lg-0">
+                                    @if (isLoggedIn)
+                                    {
+                                        <a href="@Url.Action("CartView", "Cart")" class="cart-btn cart-btn-toolbar position-relative">
+                                            <i class="bi bi-bag-fill fs-5"></i>
+                                            <span class="quantity position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                                @totalCartItems
+                                            </span>
+                                        </a>
+                                    }
+                                </li>
+
+                                <li class="mobile-menu_wrap d-block d-lg-none">
+                                    <a href="#mobileMenu" class="mobile-menu_btn toolbar-btn pl-0">
+                                        <i class="bi bi-list fs-4"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main-header header-sticky" data-bg-color="#bac34e">
+        <div class="container">
+            <div class="main-header_nav position-relative">
+                <div class="row align-items-center">
+                    <div class="col-lg-12 d-none d-lg-block">
+                        <div class="main-menu">
+                            <nav class="main-nav">
+                                <ul>
+                                    <li class="drop-holder">
+                                        <a asp-controller="Home" asp-action="Index">
+                                           Trang chủ
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Home" asp-action="About">Về chúng tôi</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Product" asp-action="Index">Sản phẩm</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Page" asp-action="Index">Hướng dẫn mua hàng</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Blog" asp-action="Index">Blog</a>
+                                    </li>
+                                    <li>
+                                        <a asp-controller="Home" asp-action="Contact">Liên hệ</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mobile-menu_wrapper" id="mobileMenu">
+        <div class="harmic-offcanvas-body">
+            <div class="inner-body">
+                <div class="harmic-offcanvas-top">
+                    <a href="#" class="button-close"><i class="pe-7s-close"></i></a>
+                </div>
+                <div class="offcanvas-user-info text-center px-6 pb-5">
+                    <div class=" text-silver">
+                        <p class="shipping mb-0">Miễn phí vận chuyển cho đơn hàng từ  <span class="text-primary"> 4 triệu đồng</span></p>
+                    </div>
+                    <ul class="dropdown-wrap justify-content-center text-silver">
+                        <li class="dropdown dropup">
+                            <button class="btn btn-link dropdown-toggle ht-btn p-0" type="button" id="settingButtonTwo" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="pe-7s-users"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingButtonTwo">
+                                @if (Context.Session.GetString("UserEmail") != null)
+                                {
+                                    <li><a class="dropdown-item" asp-controller="CustomAccount" asp-action="Login">@Context.Session.GetString("UserName")</a></li>
+                                    <li><a class="dropdown-item" asp-controller="CustomAccount" asp-action="Index">Đăng xuất</a></li>
+                                }
+                                else
+                                {
+                                    <li><a class="dropdown-item" asp-controller="CustomAccount" asp-action="Login">Đăng nhập</a></li>
+                                    <li><a class="dropdown-item" asp-controller="CustomAccount" asp-action="Register">Đăng ký</a></li>
+                                }
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+                <div class="offcanvas-menu_area">
+                    <nav class="offcanvas-navigation">
+                        <ul class="mobile-menu">
+                            <li class="menu-item-has-children">
+                                <a href="/">
+                                    <span class="mm-text">
+                                        Home                                 
+                                    </span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="about.html">
+                                    <span class="mm-text">Về chúng tôi</span>
+                                </a>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">
+                                    <span class="mm-text">
+                                        Shop
+                                        <i class="pe-7s-angle-down"></i>
+                                    </span>
+                                </a>
+                                
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">
+                                    <span class="mm-text">
+                                        Pages
+                                        <i class="pe-7s-angle-down"></i>
+                                    </span>
+                                </a>
+                            </li>
+                            <li class="menu-item-has-children">
+                                <a href="#">
+                                    <span class="mm-text">
+                                        Blog
+                                        <i class="pe-7s-angle-down"></i>
+                                    </span>
+                                </a>
+                                
+                            </li>
+                            <li>
+                                <a href="contact.html">
+                                    <span class="mm-text">Contact</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="offcanvas-search_wrapper" id="searchBar">
+        <div class="harmic-offcanvas-body">
+            <div class="container h-100">
+                <div class="offcanvas-search">
+                    <div class="harmic-offcanvas-top">
+                        <a href="#" class="button-close"><i class="pe-7s-close"></i></a>
+                    </div>
+                    <span class="searchbox-info">Start typing and press Enter to search</span>
+                    <form action="#" class="hm-searchbox">
+                        <input type="text" placeholder="Search">
+                        <button class="search-btn" type="submit"><i class="pe-7s-search"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="global-overlay"></div>
+</header>
+
+<style>
+.cart-btn {
+    position: relative; /* Đặt phần tử cha vào vị trí relative để dễ dàng điều chỉnh vị trí của phần tử con */
+    display: inline-block; /* Đảm bảo rằng icon giỏ hàng và số lượng hiển thị trên cùng một dòng */
+}
+
+    .cart-btn .quantity {
+        position: absolute; /* Đặt số lượng vào vị trí tuyệt đối bên trong phần tử cha */
+        top: -5px; /* Điều chỉnh khoảng cách từ trên */
+        right: -5px; /* Điều chỉnh khoảng cách từ bên phải */
+        background-color: red; /* Màu nền cho số lượng */
+        color: white; /* Màu chữ trắng */
+        border-radius: 50%; /* Làm cho số lượng có hình tròn */
+        width: 20px; /* Đặt kích thước số lượng */
+        height: 20px; /* Đặt kích thước số lượng */
+        display: flex; /* Dùng flex để căn giữa số trong hình tròn */
+        align-items: center; /* Căn giữa theo chiều dọc */
+        justify-content: center; /* Căn giữa theo chiều ngang */
+        font-size: 12px; /* Đặt kích thước font chữ */
+    }
+
+    .cart-btn .pe-7s-shopbag {
+        font-size: 24px; /* Điều chỉnh kích thước của biểu tượng giỏ hàng */
+    }
+</style>
