@@ -40,10 +40,8 @@ builder.WebHost.ConfigureKestrel(options =>
 });
 // Dang ký DbContext voi connection string duoc dinh nghia trong appsettings.json
 builder.Services.AddDbContext<DbBanThucPhamContext>(options =>
-    options.UseMySql(
-        builder.Configuration.GetConnectionString("ConnectedDb"),
-        new MySqlServerVersion(new Version(9, 0, 2))
-    )
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("ConnectedDb"))
 );
 
 

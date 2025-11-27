@@ -17,12 +17,11 @@ namespace webBanThucPham.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .UseCollation("utf8mb4_0900_ai_ci")
+                .UseCollation("Vietnamese_100_CI_AS")
                 .HasAnnotation("ProductVersion", "8.0.13")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            MySqlModelBuilderExtensions.HasCharSet(modelBuilder, "utf8mb4");
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("webBanThucPham.Models.Account", b =>
                 {
@@ -31,24 +30,23 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("AccountID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AccountId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountId"));
 
                     b.Property<bool?>("Active")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValueSql("'1'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<DateTime?>("CreateDate")
                         .HasColumnType("datetime");
 
                     b.Property<string>("Email")
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("FullName")
                         .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime");
@@ -56,11 +54,11 @@ namespace webBanThucPham.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(12)
-                        .HasColumnType("varchar(12)");
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<int?>("RoleId")
                         .HasColumnType("int")
@@ -68,19 +66,20 @@ namespace webBanThucPham.Migrations
 
                     b.Property<string>("Salt")
                         .HasMaxLength(10)
-                        .HasColumnType("char(10)")
+                        .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
-                    b.HasKey("AccountId")
-                        .HasName("PRIMARY");
+                    b.HasKey("AccountId");
 
-                    b.HasIndex(new[] { "Email" }, "Email")
-                        .IsUnique();
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasFilter("[Email] IS NOT NULL");
 
-                    b.HasIndex(new[] { "Phone" }, "Phone")
-                        .IsUnique();
+                    b.HasIndex("Phone")
+                        .IsUnique()
+                        .HasFilter("[Phone] IS NOT NULL");
 
-                    b.HasIndex(new[] { "RoleId" }, "RoleID");
+                    b.HasIndex("RoleId");
 
                     b.ToTable("accounts", (string)null);
                 });
@@ -92,15 +91,14 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("AttributeID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AttributeId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttributeId"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
-                    b.HasKey("AttributeId")
-                        .HasName("PRIMARY");
+                    b.HasKey("AttributeId");
 
                     b.ToTable("attributes", (string)null);
                 });
@@ -112,13 +110,12 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("AttributesPriceID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("AttributesPriceId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AttributesPriceId"));
 
                     b.Property<bool?>("Active")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValueSql("'1'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<int>("AttributeId")
                         .HasColumnType("int")
@@ -131,12 +128,11 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ProductID");
 
-                    b.HasKey("AttributesPriceId")
-                        .HasName("PRIMARY");
+                    b.HasKey("AttributesPriceId");
 
-                    b.HasIndex(new[] { "AttributeId" }, "AttributeID");
+                    b.HasIndex("AttributeId");
 
-                    b.HasIndex(new[] { "ProductId" }, "ProductID");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("attributesprices", (string)null);
                 });
@@ -148,21 +144,20 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("CartID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CartId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartId"));
 
                     b.Property<DateTime?>("CreatedDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int")
                         .HasColumnName("CustomerID");
 
-                    b.HasKey("CartId")
-                        .HasName("PRIMARY");
+                    b.HasKey("CartId");
 
-                    b.HasIndex(new[] { "CustomerId" }, "CustomerID");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("cart", (string)null);
                 });
@@ -174,7 +169,7 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("CartItemID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CartItemId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartItemId"));
 
                     b.Property<int>("CartId")
                         .HasColumnType("int")
@@ -190,15 +185,13 @@ namespace webBanThucPham.Migrations
                     b.Property<int?>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValueSql("'1'");
+                        .HasDefaultValue(1);
 
-                    b.HasKey("CartItemId")
-                        .HasName("PRIMARY");
+                    b.HasKey("CartItemId");
 
-                    b.HasIndex(new[] { "CartId" }, "CartID");
+                    b.HasIndex("CartId");
 
-                    b.HasIndex(new[] { "ProductId" }, "ProductID")
-                        .HasDatabaseName("ProductID1");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("cartitem", (string)null);
                 });
@@ -210,34 +203,34 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("CatID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CatId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CatId"));
 
                     b.Property<string>("Alias")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("CatName")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Cover")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Levels")
                         .HasColumnType("int");
 
                     b.Property<string>("MetaDesc")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("MetaKey")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int?>("Ordering")
                         .HasColumnType("int");
@@ -247,26 +240,24 @@ namespace webBanThucPham.Migrations
                         .HasColumnName("ParentID");
 
                     b.Property<bool?>("Published")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValueSql("'1'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("SchemalMarkup")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Thumb")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
-                    b.HasKey("CatId")
-                        .HasName("PRIMARY");
+                    b.HasKey("CatId");
 
-                    b.HasIndex(new[] { "ParentId" }, "ParentID");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("categories", (string)null);
                 });
@@ -278,21 +269,20 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("CustomerID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("CustomerId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CustomerId"));
 
                     b.Property<bool?>("Active")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValueSql("'1'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Address")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Avatar")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("datetime");
@@ -300,19 +290,19 @@ namespace webBanThucPham.Migrations
                     b.Property<DateTime?>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<int?>("District")
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime");
@@ -324,32 +314,31 @@ namespace webBanThucPham.Migrations
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(12)
-                        .HasColumnType("varchar(12)");
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<string>("Salt")
                         .HasMaxLength(50)
-                        .HasColumnType("char(50)")
+                        .HasColumnType("nchar(50)")
                         .IsFixedLength();
 
                     b.Property<int?>("Ward")
                         .HasColumnType("int");
 
-                    b.HasKey("CustomerId")
-                        .HasName("PRIMARY");
+                    b.HasKey("CustomerId");
 
-                    b.HasIndex(new[] { "Email" }, "Email")
+                    b.HasIndex("Email")
                         .IsUnique()
-                        .HasDatabaseName("Email1");
+                        .HasFilter("[Email] IS NOT NULL");
 
-                    b.HasIndex(new[] { "LocationId" }, "LocationID");
+                    b.HasIndex("LocationId");
 
-                    b.HasIndex(new[] { "Phone" }, "Phone")
+                    b.HasIndex("Phone")
                         .IsUnique()
-                        .HasDatabaseName("Phone1");
+                        .HasFilter("[Phone] IS NOT NULL");
 
                     b.ToTable("customers", (string)null);
                 });
@@ -361,43 +350,24 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("DeliveryAddressID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("DeliveryAddressId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DeliveryAddressId"));
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int")
                         .HasColumnName("CustomerID");
 
                     b.Property<string>("NameAddress")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(12)
-                        .HasColumnType("varchar(12)");
+                        .HasColumnType("nvarchar(12)");
 
-                    b.HasKey("DeliveryAddressId")
-                        .HasName("PRIMARY");
+                    b.HasKey("DeliveryAddressId");
 
-                    b.HasIndex(new[] { "CustomerId" }, "CustomerID")
-                        .HasDatabaseName("CustomerID1");
+                    b.HasIndex("CustomerId");
 
                     b.ToTable("deliveryaddresses", (string)null);
-                });
-
-            modelBuilder.Entity("webBanThucPham.Models.Efmigrationshistory", b =>
-                {
-                    b.Property<string>("MigrationId")
-                        .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
-
-                    b.Property<string>("ProductVersion")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("varchar(32)");
-
-                    b.HasKey("MigrationId")
-                        .HasName("PRIMARY");
-
-                    b.ToTable("__efmigrationshistory", (string)null);
                 });
 
             modelBuilder.Entity("webBanThucPham.Models.Location", b =>
@@ -407,7 +377,7 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("LocationID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("LocationId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LocationId"));
 
                     b.Property<int?>("Levels")
                         .HasColumnType("int");
@@ -415,29 +385,28 @@ namespace webBanThucPham.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("NameWithType")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("ParentCode")
                         .HasColumnType("int");
 
                     b.Property<string>("PathWithType")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Slug")
                         .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Type")
                         .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
+                        .HasColumnType("nvarchar(20)");
 
-                    b.HasKey("LocationId")
-                        .HasName("PRIMARY");
+                    b.HasKey("LocationId");
 
                     b.ToTable("locations", (string)null);
                 });
@@ -449,35 +418,35 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("OrderID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrderId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"));
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int")
                         .HasColumnName("CustomerID");
 
                     b.Property<bool>("Deleted")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<int?>("DeliveryAddressId")
                         .HasColumnType("int")
                         .HasColumnName("DeliveryAddressID");
 
                     b.Property<string>("Note")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("OrderDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<bool>("Paid")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<DateTime?>("PaymentDate")
                         .HasColumnType("datetime");
 
                     b.Property<string>("PaymentId")
-                        .HasColumnType("longtext")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("PaymentID");
 
                     b.Property<int?>("PaymentMethodId")
@@ -491,17 +460,15 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("TransactStatusID");
 
-                    b.HasKey("OrderId")
-                        .HasName("PRIMARY");
+                    b.HasKey("OrderId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("DeliveryAddressId");
+
+                    b.HasIndex("PaymentMethodId");
 
                     b.HasIndex("TransactStatusId");
-
-                    b.HasIndex(new[] { "CustomerId" }, "CustomerID")
-                        .HasDatabaseName("CustomerID2");
-
-                    b.HasIndex(new[] { "DeliveryAddressId" }, "fk_orders_deliveryaddress");
-
-                    b.HasIndex(new[] { "PaymentMethodId" }, "fk_orders_paymentmethod");
 
                     b.ToTable("orders", (string)null);
                 });
@@ -513,7 +480,7 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("OrderDetailID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrderDetailId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderDetailId"));
 
                     b.Property<int?>("Discount")
                         .HasColumnType("int");
@@ -538,13 +505,11 @@ namespace webBanThucPham.Migrations
                     b.Property<int>("Total")
                         .HasColumnType("int");
 
-                    b.HasKey("OrderDetailId")
-                        .HasName("PRIMARY");
+                    b.HasKey("OrderDetailId");
 
-                    b.HasIndex(new[] { "OrderId" }, "OrderID");
+                    b.HasIndex("OrderId");
 
-                    b.HasIndex(new[] { "ProductId" }, "ProductID")
-                        .HasDatabaseName("ProductID2");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("orderdetails", (string)null);
                 });
@@ -556,28 +521,28 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("PageID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PageId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PageId"));
 
                     b.Property<string>("Alias")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("Contents")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreateDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("MetaDesc")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("MetaKey")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<int?>("Ordering")
                         .HasColumnType("int");
@@ -585,26 +550,24 @@ namespace webBanThucPham.Migrations
                     b.Property<string>("PageName")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<bool?>("Published")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValueSql("'1'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Thumb")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(250)
-                        .HasColumnType("varchar(250)");
+                        .HasColumnType("nvarchar(250)");
 
-                    b.HasKey("PageId")
-                        .HasName("PRIMARY");
+                    b.HasKey("PageId");
 
-                    b.HasIndex(new[] { "Alias" }, "Alias")
+                    b.HasIndex("Alias")
                         .IsUnique();
 
                     b.ToTable("pages", (string)null);
@@ -617,19 +580,18 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("PaymentMethodID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PaymentMethodId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PaymentMethodId"));
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
 
                     b.Property<string>("MethodName")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("method_name");
 
-                    b.HasKey("PaymentMethodId")
-                        .HasName("PRIMARY");
+                    b.HasKey("PaymentMethodId");
 
                     b.ToTable("payment_methods", (string)null);
                 });
@@ -641,20 +603,19 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ProductID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ProductId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProductId"));
 
                     b.Property<bool?>("Active")
-                        .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasDefaultValueSql("'1'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Alias")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("BestSellers")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<int?>("CatId")
                         .HasColumnType("int")
@@ -663,31 +624,29 @@ namespace webBanThucPham.Migrations
                     b.Property<DateTime?>("DateCreated")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<DateTime?>("DateModified")
-                        .ValueGeneratedOnAddOrUpdate()
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlComputedColumn(b.Property<DateTime?>("DateModified"));
+                        .HasDefaultValueSql("GETDATE()");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("Discount")
                         .HasColumnType("int");
 
                     b.Property<bool>("HomeFlag")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<string>("MetaDesc")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("MetaKey")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("Price")
                         .HasColumnType("int");
@@ -695,37 +654,36 @@ namespace webBanThucPham.Migrations
                     b.Property<string>("ProductName")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("ShortDesc")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Tags")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Thumb")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Thumbnail")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("UnitsInStock")
                         .HasColumnType("int");
 
                     b.Property<string>("Video")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
-                    b.HasKey("ProductId")
-                        .HasName("PRIMARY");
+                    b.HasKey("ProductId");
 
-                    b.HasIndex(new[] { "CatId" }, "CatID");
+                    b.HasIndex("CatId");
 
                     b.ToTable("products", (string)null);
                 });
@@ -737,19 +695,18 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("RoleID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("RoleId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"));
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("RoleName")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("RoleId")
-                        .HasName("PRIMARY");
+                    b.HasKey("RoleId");
 
                     b.ToTable("roles", (string)null);
                 });
@@ -761,15 +718,15 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("ShipperID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("ShipperId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ShipperId"));
 
                     b.Property<string>("Company")
                         .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(10)
-                        .HasColumnType("char(10)")
+                        .HasColumnType("nchar(10)")
                         .IsFixedLength();
 
                     b.Property<DateTime?>("ShipDate")
@@ -778,10 +735,9 @@ namespace webBanThucPham.Migrations
                     b.Property<string>("ShipperName")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("varchar(150)");
+                        .HasColumnType("nvarchar(150)");
 
-                    b.HasKey("ShipperId")
-                        .HasName("PRIMARY");
+                    b.HasKey("ShipperId");
 
                     b.ToTable("shippers", (string)null);
                 });
@@ -793,7 +749,7 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("PostID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("PostId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
 
                     b.Property<int?>("AccountId")
                         .HasColumnType("int")
@@ -801,74 +757,66 @@ namespace webBanThucPham.Migrations
 
                     b.Property<string>("Alias")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Author")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .UseCollation("utf8mb3_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Author"), "utf8mb3");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CatId")
                         .HasColumnType("int")
                         .HasColumnName("CatID");
 
                     b.Property<string>("Contents")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("CreatedDate")
                         .HasColumnType("datetime");
 
-                    b.Property<bool>("IsHot")
+                    b.Property<bool?>("IsHot")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("isHot")
-                        .HasDefaultValueSql("'0'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
-                    b.Property<bool>("IsNewfeed")
+                    b.Property<bool?>("IsNewfeed")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("isNewfeed")
-                        .HasDefaultValueSql("'0'");
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("MetaDesc")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("MetaKey")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("Published")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("bit");
 
                     b.Property<string>("Scontents")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("SContents");
 
                     b.Property<string>("Tags")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Thum")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("Views")
                         .HasColumnType("int");
 
-                    b.HasKey("PostId")
-                        .HasName("PRIMARY");
+                    b.HasKey("PostId");
 
-                    b.HasIndex(new[] { "AccountId" }, "AccountID");
+                    b.HasIndex("AccountId");
 
-                    b.HasIndex(new[] { "CatId" }, "CatID")
-                        .HasDatabaseName("CatID1");
+                    b.HasIndex("CatId");
 
                     b.ToTable("tintucs", (string)null);
                 });
@@ -880,17 +828,16 @@ namespace webBanThucPham.Migrations
                         .HasColumnType("int")
                         .HasColumnName("TracsactStatusID");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("TracsactStatusId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TracsactStatusId"));
 
                     b.Property<string>("Descripstion")
-                        .HasColumnType("text");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("TracsactStatusId")
-                        .HasName("PRIMARY");
+                    b.HasKey("TracsactStatusId");
 
                     b.ToTable("transactstatuss", (string)null);
                 });
@@ -900,8 +847,7 @@ namespace webBanThucPham.Migrations
                     b.HasOne("webBanThucPham.Models.Role", "Role")
                         .WithMany("Accounts")
                         .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("accounts_ibfk_1");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Role");
                 });
@@ -912,15 +858,13 @@ namespace webBanThucPham.Migrations
                         .WithMany("Attributesprices")
                         .HasForeignKey("AttributeId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("attributesprices_ibfk_1");
+                        .IsRequired();
 
                     b.HasOne("webBanThucPham.Models.Product", "Product")
                         .WithMany("Attributesprices")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("attributesprices_ibfk_2");
+                        .IsRequired();
 
                     b.Navigation("Attribute");
 
@@ -933,8 +877,7 @@ namespace webBanThucPham.Migrations
                         .WithMany("Carts")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("cart_ibfk_1");
+                        .IsRequired();
 
                     b.Navigation("Customer");
                 });
@@ -945,15 +888,13 @@ namespace webBanThucPham.Migrations
                         .WithMany("Cartitems")
                         .HasForeignKey("CartId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("cartitem_ibfk_1");
+                        .IsRequired();
 
                     b.HasOne("webBanThucPham.Models.Product", "Product")
                         .WithMany("Cartitems")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("cartitem_ibfk_2");
+                        .IsRequired();
 
                     b.Navigation("Cart");
 
@@ -965,8 +906,7 @@ namespace webBanThucPham.Migrations
                     b.HasOne("webBanThucPham.Models.Category", "Parent")
                         .WithMany("InverseParent")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("categories_ibfk_1");
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.Navigation("Parent");
                 });
@@ -976,8 +916,7 @@ namespace webBanThucPham.Migrations
                     b.HasOne("webBanThucPham.Models.Location", "Location")
                         .WithMany("Customers")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("customers_ibfk_1");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Location");
                 });
@@ -987,8 +926,7 @@ namespace webBanThucPham.Migrations
                     b.HasOne("webBanThucPham.Models.Customer", "Customer")
                         .WithMany("Deliveryaddresses")
                         .HasForeignKey("CustomerId")
-                        .IsRequired()
-                        .HasConstraintName("deliveryaddresses_ibfk_1");
+                        .IsRequired();
 
                     b.Navigation("Customer");
                 });
@@ -999,18 +937,15 @@ namespace webBanThucPham.Migrations
                         .WithMany("Orders")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("orders_ibfk_1");
+                        .IsRequired();
 
                     b.HasOne("webBanThucPham.Models.Deliveryaddress", "DeliveryAddress")
                         .WithMany("Orders")
-                        .HasForeignKey("DeliveryAddressId")
-                        .HasConstraintName("fk_orders_deliveryaddress");
+                        .HasForeignKey("DeliveryAddressId");
 
                     b.HasOne("webBanThucPham.Models.PaymentMethod", "PaymentMethod")
                         .WithMany("Orders")
-                        .HasForeignKey("PaymentMethodId")
-                        .HasConstraintName("fk_orders_paymentmethod");
+                        .HasForeignKey("PaymentMethodId");
 
                     b.HasOne("webBanThucPham.Models.Transactstatuss", "TransactStatus")
                         .WithMany()
@@ -1031,15 +966,13 @@ namespace webBanThucPham.Migrations
                         .WithMany("Orderdetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("orderdetails_ibfk_1");
+                        .IsRequired();
 
                     b.HasOne("webBanThucPham.Models.Product", "Product")
                         .WithMany("Orderdetails")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("orderdetails_ibfk_2");
+                        .IsRequired();
 
                     b.Navigation("Order");
 
@@ -1051,8 +984,7 @@ namespace webBanThucPham.Migrations
                     b.HasOne("webBanThucPham.Models.Category", "Cat")
                         .WithMany("Products")
                         .HasForeignKey("CatId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("products_ibfk_1");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Cat");
                 });
@@ -1062,14 +994,12 @@ namespace webBanThucPham.Migrations
                     b.HasOne("webBanThucPham.Models.Account", "Account")
                         .WithMany("Tintucs")
                         .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("tintucs_ibfk_1");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("webBanThucPham.Models.Category", "Cat")
                         .WithMany("Tintucs")
                         .HasForeignKey("CatId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("tintucs_ibfk_2");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Account");
 

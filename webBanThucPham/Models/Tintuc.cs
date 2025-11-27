@@ -29,8 +29,8 @@ public partial class Tintuc
 
     public int? CatId { get; set; }
 
-    public bool IsHot { get; set; } = false;
-    public bool IsNewfeed { get; set; } = false;
+    public bool? IsHot { get; set; } = false;
+    public bool? IsNewfeed { get; set; } = false;
 
 
     public string? MetaKey { get; set; }
